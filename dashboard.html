@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ role }} Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin_dashboard.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h2>Menú</h2>
+            <ul>
+                <li><a href="/admin_dashboard">Monitoreo</a></li>
+                <li><a href="#">Alertas</a></li>
+            </ul>
+        </div>
+
+        <!-- Main content -->
+        <div class="main-content">
+            <header>
+                <h1>Bienvenido al Dashboard de {{ role }}</h1>
+            </header>
+
+            <h3>Sección de Reportes</h3>
+            <button onclick="showReport()">Ver Reporte</button>
+
+            <!-- Sección de Reporte -->
+            <div id="report-section" style="display:none;">
+                <h2>Reporte de Monitoreo</h2>
+                <pre id="log-reports">Cargando...</pre>
+            </div>
+
+            <!-- Contenedor de Gráficos -->
+            <div class="charts-container">
+                <div class="chart">
+                    <canvas id="processedQueriesChart"></canvas>
+                    <p>Consultas Procesadas</p>
+                </div>
+                <div class="chart">
+                    <canvas id="blockedQueriesChart"></canvas>
+                    <p>Consultas Bloqueadas</p>
+                </div>
+                <div class="chart">
+                    <canvas id="offHoursAccessChart"></canvas>
+                    <p>Accesos Fuera de Horario</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Incluir el archivo JavaScript -->
+    <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+</body>
+</html>

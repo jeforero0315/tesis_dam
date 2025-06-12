@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin_dashboard.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-streaming"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h2>Menú</h2>
+            <ul>
+                <li>
+                    <a href="/admin_dashboard">Dashboard Monitoreo</a>
+                    {% if role == 'admin' %}
+                    <ul class="submenu">
+                        <li><a href="/dashboard/incident">Dashboard: Incident Management</a></li>
+                        <li><a href="/dashboard/access_control_monitoring">Dashboard: Monitoreo Control de Acceso</a></li>
+                    </ul>
+                    {% endif %}
+                </li>
+                {% if role == 'admin' %}
+                <li><a href="#">Alertas</a></li>
+                <li><a href="#">Usuarios</a></li>
+                <li><a href="#">Configuración</a></li>
+                {% else %}
+                <li><a href="#">Ver Reportes</a></li>
+                {% endif %}
+            </ul>
+        </div>
+
+        <!-- Main content -->
+        <div class="main-content">
+            <h1>Bienvenido al Dashboard</h1>
+            <h3>Sección de Reportes</h3>
+            {% if role == 'admin' %}
+            <button onclick="showReport()">Ver Reporte</button>
+            <div id="report-section" style="display:none;">
+                <h2>Reporte de Monitoreo</h2>
+                <pre id="log-reports">Cargando...</pre>
+                <button onclick="downloadReport()">Descargar Reporte</button>
+            </div>
+            {% else %}
+            <p>Acciones limitadas para usuarios.</p>
+            {% endif %}
+
+            <!-- Gráficos y Widgets -->
+            <div class="charts">
+                <div class="chart-container">
+                    <h4>Consultas Procesadas</h4>
+                    <canvas id="processedQueriesChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h4>Consultas Bloqueadas</h4>
+                    <canvas id="blockedQueriesChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h4>Accesos Fuera de Horario</h4>
+                    <canvas id="offHoursAccessChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h4>Alertas de Seguridad</h4>
+                    <canvas id="securityAlertsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Otras métricas -->
+            <div class="metrics">
+                <div class="metric">
+                    <h4>Total de Consultas</h4>
+                    <div id="totalQueries">Cargando...</div>
+                </div>
+                <div class="metric">
+                    <h4>Consultas Bloqueadas</h4>
+                    <div id="blockedQueries">Cargando...</div>
+                </div>
+                <div class="metric">
+                    <h4>Accesos Fuera de Horario</h4>
+                    <div id="offHourAccess">Cargando...</div>
+                </div>
+            </div>
+
+            <!-- Log Section -->
+            <div class="log-container">
+                <h3>Últimos Logs Registrados</h3>
+                <div id="logSection"></div>
+            </div>
+
+            <!-- Nuevos Recuadros de Logs -->
+            <div class="logs-summary">
+                <div class="log-item">
+                    <h4>Direcciones IP</h4>
+                    <div id="ipAddresses">192.168.101.2</div>
+                </div>
+                <div class="log-item">
+                    <h4>Consultas Realizadas</h4>
+                    <div id="queries">INSERT sobre la tabla FINANCIAL_DATA_USR.FINANCIAL_DATA</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showReport() {
+            document.getElementById("report-section").style.display = "block";
+            fetch('/get_logs')
+                .then(response => response.json())
+                .then(data => {
+                    let logs = data.logs.join('\n');
+                    document.getElementById('log-reports').textContent = logs;
+
+                    const logSection = document.getElementById("logSection");
+                    logSection.innerHTML = "";
+
+                    data.logs.forEach(log => {
+                        const logDiv = document.createElement("div");
+                        logDiv.classList.add("log-entry");
+                        logDiv.textContent = log;
+                        logSection.appendChild(logDiv);
+                    });
+
+                    processLogs(data.ip_addresses, data.queries);
+                });
+        }
+
+        function processLogs(ipAddresses, queries) {
+            document.getElementById("ipAddresses").textContent = ipAddresses.join(', ');
+            document.getElementById("queries").textContent = queries.join(', ');
+        }
+
+        function downloadReport() {
+            const reportContent = document.getElementById('log-reports').textContent;
+            const blob = new Blob([reportContent], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'reporte_monitoreo.txt';
+            link.click();
+        }
+
+        const processedQueriesChart = new Chart(document.getElementById('processedQueriesChart'), {
+            type: 'line',
+            data: {
+                labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo'],
+                datasets: [{
+                    label: 'Consultas Procesadas',
+                    data: [12, 19, 10, 24, 30],
+                    borderColor: 'blue',
+                    backgroundColor: 'blue',
+                    fill: false,
+                    pointRadius: 5,
+                    borderWidth: 2
+                }]
+            }
+        });
+
+        const blockedQueriesChart = new Chart(document.getElementById('blockedQueriesChart'), {
+            type: 'line',
+            data: {
+                labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo'],
+                datasets: [{
+                    label: 'Consultas Bloqueadas',
+                    data: [5, 10, 6, 12, 15],
+                    borderColor: 'red',
+                    backgroundColor: 'red',
+                    fill: false,
+                    pointRadius: 5,
+                    borderWidth: 2
+                }]
+            }
+        });
+
+        const offHoursAccessChart = new Chart(document.getElementById('offHoursAccessChart'), {
+            type: 'line',
+            data: {
+                labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo'],
+                datasets: [{
+                    label: 'Accesos Fuera de Horario',
+                    data: [2, 3, 4, 3, 5],
+                    borderColor: 'purple',
+                    backgroundColor: 'purple',
+                    fill: false,
+                    pointRadius: 5,
+                    borderWidth: 2
+                }]
+            }
+        });
+
+        const securityAlertsChart = new Chart(document.getElementById('securityAlertsChart'), {
+            type: 'line',
+            data: {
+                labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo'],
+                datasets: [{
+                    label: 'Alertas de Seguridad',
+                    data: [1, 2, 3, 4, 5],
+                    borderColor: 'orange',
+                    backgroundColor: 'orange',
+                    fill: false,
+                    pointRadius: 5,
+                    borderWidth: 2
+                }]
+            }
+        });
+
+        setInterval(() => {
+            document.getElementById('totalQueries').textContent = Math.floor(Math.random() * 50);
+            document.getElementById('blockedQueries').textContent = Math.floor(Math.random() * 15);
+            document.getElementById('offHourAccess').textContent = Math.floor(Math.random() * 5);
+        }, 5000);
+    </script>
+</body>
+</html>

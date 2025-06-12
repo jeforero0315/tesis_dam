@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ role }} Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin_dashboard.css') }}"> <!-- Referencia al nuevo archivo CSS -->
+</head>
+<body>
+    <div class="dashboard-container">
+        <h1>Bienvenido al Dashboard de {{ role }}</h1>
+        
+        {% if role == 'admin' %}
+        <div class="section">
+            <h2>Sección de Reportes</h2>
+            <button onclick="showReport()">Ver Reporte</button>
+        </div>
+
+        <!-- Report Section -->
+        <div id="report-section" style="display:none;">
+            <h2>Reporte de Monitoreo</h2>
+            <pre id="log-reports">Cargando...</pre>
+            <div id="graph-container">
+                <!-- Aquí se inyectará el gráfico generado por el backend -->
+                <div id="graph"></div>
+            </div>
+        </div>
+        {% else %}
+        <div class="section">
+            <h2>Acceso restringido. Solo disponible para administradores.</h2>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Mostrar la sección del reporte
+        function showReport() {
+            document.getElementById("report-section").style.display = "block";
+            fetch('/get_logs')
+                .then(response => response.json())
+                .then(data => {
+                    let logs = data.logs.join('\n');
+                    document.getElementById('log-reports').textContent = logs;
+                    // Inject the plotly graph into the page
+                    document.getElementById('graph').innerHTML = data.graph;
+                });
+        }
+    </script>
+</body>
+</html>

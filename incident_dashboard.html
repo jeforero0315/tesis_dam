@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard: Incident Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin_dashboard.css') }}">
+    <style>
+        .summary-box {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+            margin-bottom: 40px;
+        }
+
+        .summary-box h3 {
+            margin-bottom: 12px;
+            color: #34495e;
+        }
+
+        .summary-box p {
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .highlight {
+            background-color: #ecf0f1;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-family: monospace;
+            display: inline-block;
+        }
+
+        .incident-table {
+            width: 100%;
+            border-collapse: collapse;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
+        }
+
+        .incident-table th {
+            background-color: #3f51b5;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .incident-table td {
+            padding: 12px;
+            border-top: 1px solid #f0f0f0;
+            vertical-align: middle;
+        }
+
+        .incident-table code {
+            background-color: #f5f7fa;
+            padding: 6px;
+            border-radius: 5px;
+            display: block;
+        }
+
+        .badge-success {
+            color: green;
+            font-weight: bold;
+        }
+
+        .actions {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .actions button {
+            background-color: #3f51b5;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+        }
+
+        .actions button:hover {
+            background-color: #2c3e91;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h2>Menú</h2>
+            <ul>
+                <li>
+                    <a href="/admin_dashboard">Monitoreo</a>
+                    <ul class="submenu">
+                        <li><a href="/dashboard/main">Dashboard: Main</a></li>
+                        <li><a href="/dashboard/incident">Dashboard: Incident Management</a></li>
+                    </ul>
+                </li>
+                <li><a href="#">Alertas</a></li>
+            </ul>
+        </div>
+
+        <div class="main-content">
+            <h1>Dashboard: Incident Management</h1>
+            <h3>Consultas destructivas detectadas</h3>
+
+            <div class="summary-box">
+                <h3>🧠 Análisis del Incidente</h3>
+                <p>
+                    Se han detectado <strong>intentos de manipulación destructiva</strong> en la base de datos.
+                    Esto incluye consultas como <span class="highlight">DROP TABLE</span>,
+                    <span class="highlight">DELETE</span> o <span class="highlight">TRUNCATE</span>.
+                </p>
+            </div>
+
+            <div class="log-container">
+                <table class="incident-table">
+                    <thead>
+                        <tr>
+                            <th>Usuario</th>
+                            <th>Consulta</th>
+                            <th>Fecha</th>
+                            <th>Tabla Respaldada</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for incidente in incidentes %}
+                        <tr>
+                            <td>{{ incidente.usuario }}</td>
+                            <td><code>{{ incidente.consulta }}</code></td>
+                            <td>{{ incidente.fecha }}</td>
+                            <td>{{ incidente.tabla_respaldo }}</td>
+                            <td><span class="badge-success">{{ incidente.estado }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="summary-box">
+                <h3>💾 Respaldo generado correctamente</h3>
+                <p>
+                    Los datos de la tabla afectada han sido replicados automáticamente como medida de protección.
+                    Si deseas realizar un respaldo manual adicional o notificar al equipo de seguridad, puedes hacerlo:
+                </p>
+                <div class="actions">
+                    <button onclick="alert('Funcionalidad aún no implementada.')">Realizar respaldo manual</button>
+                    <button onclick="ejecutarAutomation()">Notificar al equipo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function ejecutarAutomation() {
+            fetch('/ejecutar_automated_response', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+            })
+            .catch(error => {
+                alert('Error al ejecutar la automatización.');
+                console.error(error);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenido a la herramienta de monitoreo DAM JS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="login-box">
+            <h2>Bienvenido a la herramienta de monitoreo DAMIAN Jf</h2>
+            <form action="/" method="POST"> 
+                <div class="textbox">
+                    <input type="text" placeholder="Correo electrónico" name="username" required>
+                </div>
+                <div class="textbox">
+                    <input type="password" placeholder="Contraseña" name="password" required>
+                </div>
+                <div class="remember">
+                    <input type="checkbox" id="remember"> <label for="remember">Recordar contraseña</label>
+                </div>
+                <button type="submit" class="btn">Iniciar sesión</button>
+                <a href="#">¿Olvidaste la contraseña?</a>
+            </form>
+
+            <!-- Botón Google -->
+            <hr>
+            <form action="{{ url_for('login_google') }}">
+                <button type="submit" class="btn" style="margin-top: 15px;">Iniciar sesión con Google</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
